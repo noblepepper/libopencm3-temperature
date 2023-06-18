@@ -46,6 +46,7 @@ static void clock_setup(void)
         rcc_periph_clock_enable(RCC_TIM7);
 	rcc_periph_clock_enable(RCC_SYSCFG);
 	rcc_periph_clock_enable(RCC_ADC1);
+	rcc_periph_clock_enable(RCC_DMA1);
 
 
 	rcc_set_sysclk_source(RCC_CFGR_SW_PLL); /* careful with the param here! */

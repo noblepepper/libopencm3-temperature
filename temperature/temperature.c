@@ -52,9 +52,9 @@ static void setup(void)
 int main(void)
 {
 	int i;
-	uint8_t channel_array[16];
+	uint8_t channel_array[16] = {5, 6, 8, 9, 10, 11, 12, 15, 16} ;
 	uint16_t reading = 0;
-	uint32_t averages[9]= {0,0,0,0,0,0,0,0,0};
+	uint32_t averages[9] = {0,0,0,0,0,0,0,0,0};
 	uint16_t num_readings = 0;
 	uint16_t cmd;
 	int status = 0; /* 0 = waiting 1 = running */
@@ -76,36 +76,16 @@ int main(void)
 		}
 		while (status == 1){
 			if (num_readings < 65535){
-				for (i = 5; i < 7; i++){
-					channel_array[0] = i;
-					adc_set_regular_sequence(ADC1, 1, channel_array);
-					adc_start_conversion_regular(ADC1);
-//					Wait for end of conversion.
+				i = 0;
+				adc_set_regular_sequence(ADC1, 9, channel_array);
+				adc_start_conversion_regular(ADC1);
+				while (!(adc_eos(ADC1))){
 					while (!(adc_eoc(ADC1)));
 					reading = adc_read_regular(ADC1);
-					averages[i - 5] += reading;
+					averages[i++] += reading;
 					gpio_toggle(LED_GREEN_PORT, LED_GREEN_PIN);
 				}
-				for (i = 8; i < 13; i++){
-				channel_array[0] = i;
-					adc_set_regular_sequence(ADC1, 1, channel_array);
-					adc_start_conversion_regular(ADC1);
-//					Wait for end of conversion.
-					while (!(adc_eoc(ADC1)));
-					reading = adc_read_regular(ADC1);
-					averages[i - 6] += reading;
-					gpio_toggle(LED_GREEN_PORT, LED_GREEN_PIN); 
-				}
-				for (i = 15; i < 17; i++){
-					channel_array[0] = i;
-					adc_set_regular_sequence(ADC1, 1, channel_array);
-					adc_start_conversion_regular(ADC1);
-//					Wait for end of conversion.
-					while (!(adc_eoc(ADC1)));
-					reading = adc_read_regular(ADC1);
-					averages[i - 8] += reading;
-					gpio_toggle(LED_GREEN_PORT, LED_GREEN_PIN);
-				}
+				ADC_ISR(ADC1) |= ADC_ISR_EOS;
 				num_readings++;
 			}
 			cmd = get_cmd();
